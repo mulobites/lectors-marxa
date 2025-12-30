@@ -2,17 +2,82 @@
 import tkinter as tk
 from tkinter import ttk
 import time
+import json
+import paho.mqtt.client as paho
+from paho import mqtt
 
 
 
-llistacontrols = ["gracia", "sants", "can cuias", "papiol", "olesa"]
+
+
+client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv5)
+client.callback_api_version.VERSION2
+client.tls_set(tls_version=mqtt.client.ssl.PROTOCOL_TLS)
+client.username_pw_set(username="marxa", password="marxaUEC1")
+client.connect("fd483681811b46998f1720ee6faf6416.s1.eu.hivemq.cloud", 8883)
+client.loop_start()
+
+def on_connect(client, userdata, flags, rc, blue):
+    print("Connected")
+
+
+
+client.on_connect=on_connect
+#llistacontrols = ["gracia", "sants", "can cuias", "papiol", "olesa"]
+
+with open("controls.json") as llistacontrols:
+    llistacontrols=json.loads(llistacontrols.read())
+
+with open("dorsals.json") as llistadorsals:
+    llistadorsals=json.loads(llistadorsals.read())
+
+print(llistadorsals)
+print(llistacontrols)
+
+
+def llegirxip(event):
+    xip["text"]=xip["text"]+event.char
+    print(xip["text"])
+
+
+
+def principal(event):
+    if xip["text"] in llistadorsals:
+        dorsal["text"]=llistadorsals[xip["text"]]
+        quartet=(dorsal["text"], xip["text"], control.get(), hora["text"])
+    else:
+        print("no llegeix")
+        quartet=("desconegut", xip["text"], control.get(), hora["text"])
+    print(quartet)
+    file = open("resultats2026.txt", "a")
+    file.write(control.get())
+    file.write(',')
+    file.write(dorsal["text"])
+    file.write(',')
+    file.write(xip["text"])
+    file.write(',')
+    file.write(time.strftime("%H:%M:%S"))
+    file.write('\n')
+    file.close()
+    client.publish("marxa", payload=str(quartet), qos=1)
+    xip["text"]=""
+
+
+
+
+
 
 marc = tk.Tk()
 marc.title('Barcelona-Montserrat')
 marc.geometry('800x480')
+marc.bind("<Key>",llegirxip)
+marc.bind("<Return>", principal)
 marc.columnconfigure(0, weight=1)
 marc.rowconfigure(0, weight=1)
 marc.rowconfigure(1, weight=9)
+
+
+xip=tk.Label(marc, text="")
 
 
 
@@ -67,14 +132,23 @@ sort2.config()
 
 sort2.grid(row=0, column=1, sticky="nsew")
 
+total=tk.Label(sort2)
+total.config(text="total:", font=("Arial", 15))
+total.grid(row=0, column=1, sticky="nsew")
+
+numtotal=tk.Label(sort2)
+numtotal.config(bg='yellow', text=len(llistadorsals), font=("Arial", 15))
+numtotal.grid(row=0, column=2, sticky="nsew")
 for x in  llistacontrols:
     nomdorsal = tk.Label(sort2)
     nomdorsal.config(bg='green', text=x, font=("Arial", 20))
-    nomdorsal.grid(row=llistacontrols.index(x), column=1, sticky="nsew")
+    nomdorsal.grid(row=(llistacontrols.index(x)+1), column=1, sticky="nsew")
 
     numdorsal = tk.Label(sort2)
     numdorsal.config(bg='yellow', text="123", font=("Arial", 20))
-    numdorsal.grid(row=llistacontrols.index(x), column=2, sticky="nsEW")
+    numdorsal.grid(row=(llistacontrols.index(x)+1), column=2, sticky="nsEW")
+
+
 
 
 def tick():
@@ -83,6 +157,9 @@ def tick():
     hora.after(500, tick)
 
 tick()
+
+
+
 
 
 marc.mainloop()
