@@ -1,0 +1,55 @@
+import json
+
+import streamlit as st
+
+
+st.title("gestió de controls")
+
+#llistacontrols = []
+
+#with open("controls.json", "r") as llistacontrols1:
+#    for w in llistacontrols1:
+#        llistacontrols[w] = json.load(w)
+
+llistacontrols=json.loads(open("controls.json", "r").read())
+
+
+with st.form(key="formcontrols"):
+    nom=st.text_input("nom control")
+    desa=st.form_submit_button("desa")
+    if desa:
+        llistacontrols.append(nom)
+        with open("controls.json", "w") as llistacontrols2:
+            json.dump(llistacontrols, llistacontrols2)
+
+reset=st.button("reset")
+if reset:
+    llistacontrols=[]
+    with open("controls.json", "w") as llistacontrols2:
+        json.dump(llistacontrols, llistacontrols2)
+
+
+
+st.write(llistacontrols)
+
+
+st.title("gestio de dorsals")
+
+with open("dorsals.json", "r") as f:
+    dorsals=json.load(f)
+
+with st.form(key="formdorsals"):
+    numdorsals=st.text_input("num dorsals")
+    xip=st.text_input("xip")
+    intro=st.form_submit_button("desa")
+    if intro:
+        dorsals[xip]=numdorsals
+        with open("dorsals.json", "w") as dorsals2:
+            json.dump(dorsals, dorsals2)
+
+reset2=st.button("reset2")
+if reset2:
+    dorsals={}
+    with open("dorsals.json", "w") as f:
+        json.dump(dorsals, f)
+st.write(dorsals)
