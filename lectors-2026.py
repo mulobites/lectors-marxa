@@ -20,9 +20,26 @@ client.loop_start()
 def on_connect(client, userdata, flags, rc, blue):
     print("Connected")
 
+def on_subscribe(client, userdata, mid, reasoncodes, properties):
+    print("Subscribed")
+
+def on_message(client, userdata, msg):
+    print (msg.payload)
+    contador=json.loads(msg.payload)
+    print(contador)
+    for x in contador:
+        index=contador.index(x)
+        numdorsal = tk.Label(sort2)
+        numdorsal.config(bg='yellow', text=contador[index], font=("Arial", 20))
+        numdorsal.grid(row=(contador.index(x)+1), column=2, sticky="nsEW")
+
 
 
 client.on_connect=on_connect
+client.on_subscribe=on_subscribe
+client.on_message=on_message
+
+client.subscribe(topic="resultats", qos=1)
 #llistacontrols = ["gracia", "sants", "can cuias", "papiol", "olesa"]
 
 with open("controls.json") as llistacontrols:
@@ -44,11 +61,15 @@ def llegirxip(event):
 def principal(event):
     if xip["text"] in llistadorsals:
         dorsal["text"]=llistadorsals[xip["text"]]
+        triada=(dorsal["text"], control.get(), hora["text"])
         quartet=(dorsal["text"], xip["text"], control.get(), hora["text"])
     else:
         print("no llegeix")
+        triada=(xip["text"], control.get(), hora["text"])
         quartet=("desconegut", xip["text"], control.get(), hora["text"])
     print(quartet)
+    triadaj=json.dumps(triada)
+    quartetj=json.dumps(quartet)
     file = open("resultats2026.txt", "a")
     file.write(control.get())
     file.write(',')
@@ -59,7 +80,7 @@ def principal(event):
     file.write(time.strftime("%H:%M:%S"))
     file.write('\n')
     file.close()
-    client.publish("marxa", payload=str(quartet), qos=1)
+    client.publish(topic="marxa", payload=triadaj, qos=1)
     xip["text"]=""
 
 
@@ -144,9 +165,9 @@ for x in  llistacontrols:
     nomdorsal.config(bg='green', text=x, font=("Arial", 20))
     nomdorsal.grid(row=(llistacontrols.index(x)+1), column=1, sticky="nsew")
 
-    numdorsal = tk.Label(sort2)
-    numdorsal.config(bg='yellow', text="123", font=("Arial", 20))
-    numdorsal.grid(row=(llistacontrols.index(x)+1), column=2, sticky="nsEW")
+    #numdorsal = tk.Label(sort2)
+    #numdorsal.config(bg='yellow', text="123", font=("Arial", 20))
+    #numdorsal.grid(row=(llistacontrols.index(x)+1), column=2, sticky="nsEW")
 
 
 
