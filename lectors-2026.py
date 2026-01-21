@@ -5,9 +5,7 @@ import time
 import json
 import paho.mqtt.client as paho
 from paho import mqtt
-
-
-
+from urllib.request import urlretrieve
 
 
 client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv5)
@@ -30,8 +28,8 @@ def on_message(client, userdata, msg):
     for x in contador:
         index=contador.index(x)
         numdorsal = tk.Label(sort2)
-        numdorsal.config(bg='yellow', text=contador[index], font=("Arial", 20))
-        numdorsal.grid(row=(contador.index(x)+1), column=2, sticky="nsEW")
+        numdorsal.config(text=contador[index], font=("Arial", 20))
+        numdorsal.grid(row=(contador.index(x)+1), column=1, sticky="nsEW")
 
 
 
@@ -41,6 +39,14 @@ client.on_message=on_message
 
 client.subscribe(topic="resultats", qos=1)
 #llistacontrols = ["gracia", "sants", "can cuias", "papiol", "olesa"]
+
+file_url="https://raw.githubusercontent.com/mulobites/lectors-marxa/refs/heads/main/controls.json"
+filename = "controls.json"
+
+urlretrieve(file_url, filename)
+
+
+
 
 with open("controls.json") as llistacontrols:
     llistacontrols=json.loads(llistacontrols.read())
@@ -122,6 +128,7 @@ control.grid(row=0, column=0, sticky="NSEW")
 gps = tk.Label(entrades)
 gps.config(bg='red', text="gps", font=("Arial", 15))
 gps.grid(row=0, column=2, sticky="nsew")
+
 xarxa=tk.Label(entrades)
 xarxa.config(bg='yellow', text="xar", font=("Arial", 15))
 xarxa.grid(row=0, column=3, sticky="nsew")
@@ -141,29 +148,30 @@ sort1.rowconfigure(0, weight=1)
 sort1.grid(row=0, column=0, sticky="nsew")
 
 etdorsal = tk.Label(sort1)
-etdorsal.config(text="dorsal:", font=("Arial", 15))
-etdorsal.grid(row=0, column=0, sticky="n")
+etdorsal.config(text="dorsal:", font=("Arial", 30))
+etdorsal.grid(row=0, column=0, sticky="new")
 
 dorsal=tk.Label(sort1)
-dorsal.config(bg='blue', text="dorsal", font=("Arial", 50))
-dorsal.grid(row=0, column=1, sticky="n")
+dorsal.config(text="dorsal", font=("Arial", 50))
+dorsal.grid(row=0, column=1, sticky="new")
 
 sort2=tk.Frame(sortides)
 sort2.config()
-
+sort2.columnconfigure(0, weight=3)
+sort2.columnconfigure(1, weight=2)
 sort2.grid(row=0, column=1, sticky="nsew")
 
 total=tk.Label(sort2)
 total.config(text="total:", font=("Arial", 15))
-total.grid(row=0, column=1, sticky="nsew")
+total.grid(row=0, column=0, sticky="nsew")
 
 numtotal=tk.Label(sort2)
-numtotal.config(bg='yellow', text=len(llistadorsals), font=("Arial", 15))
-numtotal.grid(row=0, column=2, sticky="nsew")
+numtotal.config(text=len(llistadorsals), font=("Arial", 15))
+numtotal.grid(row=0, column=1, sticky="nsew")
 for x in  llistacontrols:
     nomdorsal = tk.Label(sort2)
-    nomdorsal.config(bg='green', text=x, font=("Arial", 20))
-    nomdorsal.grid(row=(llistacontrols.index(x)+1), column=1, sticky="nsew")
+    nomdorsal.config(text=x, font=("Arial", 20))
+    nomdorsal.grid(row=(llistacontrols.index(x)+1), column=0, sticky="nsew")
 
     #numdorsal = tk.Label(sort2)
     #numdorsal.config(bg='yellow', text="123", font=("Arial", 20))
